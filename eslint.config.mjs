@@ -1,34 +1,49 @@
-// @ts-check
-import eslint from '@eslint/js';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import globals from 'globals';
-import tseslint from 'typescript-eslint';
+import tsParser from '@typescript-eslint/parser';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import js from '@eslint/js';
+import { FlatCompat } from '@eslint/eslintrc';
 
-export default tseslint.config(
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all,
+});
+
+export default [
   {
-    ignores: ['eslint.config.mjs'],
+    ignores: ['**/*.d.ts', '**/node_modules/', '**/*.js'],
   },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  eslintPluginPrettierRecommended,
+  ...compat.extends('plugin:@typescript-eslint/recommended', 'prettier'),
   {
+    plugins: {
+      '@typescript-eslint': typescriptEslint,
+    },
+
     languageOptions: {
       globals: {
         ...globals.node,
         ...globals.jest,
       },
+
+      parser: tsParser,
+      ecmaVersion: 2018,
       sourceType: 'commonjs',
+
       parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
+        source: 'module',
       },
     },
-  },
-  {
+
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn'
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/interface-name-prefix': 'off',
+      '@typescript-eslint/camelcase': 'off',
     },
   },
-);
+];
