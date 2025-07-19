@@ -7,4 +7,9 @@ export class TasksService {
   getTasks() {
     return this.tasks;
   }
+
+  createTask(task: any) {
+    this.tasks.push(task);
+    return task;
+  }
 }
